@@ -1,0 +1,52 @@
+---
+layout: page
+title: Search
+nav_order: 4
+extra_js:
+  - elasticlunr.min.js
+  - search.js
+extra_css:
+  - search.css
+---
+<div class="article-container">
+{% comment %}Search form and results container {% endcomment %}
+  <div class="container">
+    <div id="search-container">
+      <input type="text" id="search-input" class="form-control" style="width:auto"
+          size="100" autofocus="true"
+          placeholder="Search pages and annotations">
+      <p class="help-block">Search by keyword or phrase.</p>
+    </div>
+
+    <div class="row text-left" id="applied-filters" style="display: none;">
+      <div class="col-md-12">
+        <div class="search-option-title">applied filter:</div>
+        <div class="applied-filters"></div>
+      </div>
+    </div>
+
+    <div class="row text-left search-filter" id="search-tip" style="display: none;">
+      <div class="col-md-12">
+        <div class="search-option-tip">You can limit your search to page content or annotations and refine your annotation search by selecting tags.</div>
+      </div>
+    </div>
+
+    <div class="row text-left search-filter" id="type-filter" style="display: none;">
+      <div class="col-md-12">
+        <div class="search-option-title">filter by type:</div>
+        <div id="facet-type"></div>
+      </div>
+    </div>
+
+    <div class="row text-left search-filter" id="tag-filter" style="display: none;">
+      <div class="col-md-12">
+        <div class="search-option-title">filter by tag:</div>
+        <div id="facet-tag"></div>
+      </div>
+    </div>
+
+    <div class="row media text-left">
+      <div class="col-md-12" id="search-results"></div>
+    </div>
+  </div>
+</div>

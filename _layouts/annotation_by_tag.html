@@ -1,0 +1,42 @@
+---
+layout: default
+excerpt: Browse annotations by tag.
+---
+<div class="container">
+{% comment %}
+  Use tag name from data if we can, but use slug as fallback for display.
+{% endcomment %}
+{% if site.data.tags contains page.tag %}
+    {% assign tag_name = site.data.tags[page.tag].name %}
+{% endif %}
+
+<h1>Annotations tagged with {{ tag_name }}</h1>
+    {% if site.data.tags[page.tag] %}
+        {% for annotation in site.annotations|sort: 'sort_order' %}
+
+        {% if annotation.tags contains page.tag %}
+        <div class="media">
+            {% assign annotated_page=site.volume_pages[annotation.page_index] %}
+            {% ifchanged %}<h4><a href="{{ site.baseurl }}{{ annotated_page.url }}">{{ annotated_page.title }}</a></h4>{% endifchanged %}
+            <div class="media-left">
+                <a href="{{ site.baseurl }}{{ annotated_page.url }}">
+                    <p class="page-number">{{ annotated_page.short_label}} {{ annotated_page.number }}</p>
+                     <img class="media-object img-thumbnail"
+                        src="{% if annotated_page.images.small-thumbnail contains '://' %}{% else %}{{ site.url }}{{ site.baseurl }}/{% endif %}{{ annotated_page.images.small-thumbnail }}"
+                        alt="{{ annotated_page.title }}" title="{{ annotated_page.title }}"/>
+                 </a>
+            </div>
+             <div class="media-body" class="width:100%">
+            <a class="to-fullpage" href="{{ site.baseurl }}{{ annotation.url }}" title="full page annotation view"><i class="fa fa-expand"></i></a>
+
+            {% include annotation.html %}
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    {% else %}
+    <p>No annotations with this tag.</p>
+    {% endif %}
+
+
+</div>

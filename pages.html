@@ -1,0 +1,79 @@
+---
+layout: page
+title: 'Browse Pages'
+nav_order: 3
+extra_js:
+  - masonry.min.js
+  - lazysizes.min.js
+excerpt: Browse volume pages by thumbnail.
+---
+
+<p>{{ site.volume_pages|size }} pages, {{ site.annotations|size }} annotations.</p>
+<hr/>
+<style type="text/css">
+{% assign small_thumb_threshold = '425px' %}
+{% comment %} override default page size when configured {% endcomment %}
+{% if site.image_size.thumbnail.width and site.image_size.thumbnail.height %}
+    .page-thumbnails .page-thumbnail {
+      width: {{ site.image_size.thumbnail.width }}px;
+      height: {{ site.image_size.thumbnail.height }}px;
+      overflow: hidden;
+    }
+    @media screen and (max-width: {{ small_thumb_threshold }}) {
+          .page-thumbnails .page-thumbnail {
+              width: {{ site.image_size.small-thumbnail.width }}px;
+              height: {{ site.image_size.small-thumbnail.height }}px;
+              overflow: hidden;
+          }
+    }
+{% endif %}
+
+  {% comment %} prevent thumbnail from not filling out the entire container {% endcomment %}
+  .page-thumbnail img {
+    {% if site.image_size.thumbnail.width < site.image_size.thumbnail.height %}
+    height: 100%;
+    {% else %}
+    width: 100%;
+    {% endif %}
+  }
+
+  <noscript>
+  img.lazy-load {
+    display: none;
+  }
+  </noscript>
+</style>
+
+
+<div class="wide-container">
+
+<div class="page-thumbnails js-masonry"
+  data-masonry-options='{ "itemSelector": ".page-thumbnail" }'>
+{% for page in site.volume_pages %}
+<div class="page-thumbnail">
+    <a href="{{ site.baseurl }}{{ page.url }}" title="{{ page.title }}">
+        <p class="page-number">{{ page.short_label}} {{ page.number }}</p>
+{% comment %}<img class="lazy-load" data-original="{{ page.images.thumbnail }}"/> {% endcomment %}
+        <picture>
+          <!--[if IE 9]><video style="display: none"><![endif]-->
+          <source
+              data-srcset="{% if page.images.small-thumbnail contains '://' %}{% else %}{{ site.url }}{{ site.baseurl }}/{% endif %}{{ page.images.small-thumbnail }}"
+              media="(max-width: {{small_thumb_threshold }})" />
+        <!--[if IE 9]></video><![endif]-->
+          <img data-src="{% if page.images.thumbnail contains '://' %}{% else %}{{ site.url }}{{ site.baseurl }}/{% endif %}{{ page.images.thumbnail }}" class="lazyload" />
+        </picture>
+        <noscript>
+            <img src="{% if page.images.thumbnail contains '://' %}{% else %}{{ site.url }}{{ site.baseurl }}/{% endif %}{{ page.images.thumbnail }}"/>
+        </noscript>
+        {% assign count = page.annotation_count %}
+        {% if count != 0 %}
+        <p class="comment-count" title="{{ count }} annotation{{ count|pluralize }}">
+            {{ count }}
+        </p>
+        {% endif %}
+    </a>
+</div>
+{% endfor %}
+</div>
+
+</div>

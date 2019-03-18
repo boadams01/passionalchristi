@@ -1,0 +1,137 @@
+---
+layout: default
+---
+<article class="carousel page">
+    <h1>{{ page.title }}</h1>
+    <div class="carousel-inner">
+
+        <div class="container in-page-controls">
+            <div id="view-toggle" class="col-sm-4 pull-right">
+                <div class="btn-group pull-right">
+                {% comment %}annotation indicator/link for smaller screen layout {% endcomment %}
+                    {% if page.annotation_count != 0 %}
+                      <a class="comment-count pull-left" title="{{ page.annotation_count }} annotation{{ page.annotation_count|pluralize }}" href="#annotations">
+                        {{ page.annotation_count }}</a>
+                    {% endif %}
+                    {% if page.deep_zoom %}
+                    <a id="enable-zoom" href="#" class="btn" alt="Deep Zoom Mode" title="Deep Zoom Mode"><span class="glyphicon glyphicon-fullscreen"></span></a>
+                    {% endif %}
+
+                    <a id="covers" href="#" class="btn active" alt="Single Page" title="Single Page"><span class="glyphicon glyphicon-file"></span></a>
+
+                    <a id="list" alt="Browse pages" title="Browse pages" href="{{ site.baseurl }}/pages/" class="btn" rel="index"><span class="glyphicon glyphicon-th"></span></a>
+                </div>
+
+                {% if page.deep_zoom %}
+                <div id="deepzoom-controls" class="hidden">
+                    <div class="btn-group">
+                        <a id="dz-zoom-in" alt="Zoom In" title="Zoom In" href="#" class="btn"><span class="glyphicon glyphicon-plus"></span></a>
+
+                        <a id="dz-zoom-out" alt="Zoom Out" title="Zoom Out" href="#" class="btn"><span class="glyphicon glyphicon-minus"></span></a>
+
+                        <a id="dz-home" alt="Back to Start Position" title="Back to Start Position" href="#" class="btn"><span class="glyphicon glyphicon-home"></span></a>
+
+                        <a id="dz-fs" alt="Fullscreen Mode" title="Fullscreen Mode" href="#" class="btn"><span class="glyphicon glyphicon-fullscreen"></span></a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="col-xs-3 col-sm-4 col-sm-offset-4 text-center">
+                <p class="text-muted">{{ page.short_label }} {{ page.number }}</p>
+            </div>
+        </div>
+    </div>
+
+        <div class="text-center">
+            <div id="zoom-page"></div>
+            <div class="page">
+                <div class="content">
+                    <section class="inner">
+                       <img class="page-image" src="{% if page.images.page contains '://' %}{% else %}{{ site.url }}{{ site.baseurl }}/{% endif %}{{ page.images.page }}"/>
+                      {{ content }}
+                    </section>
+                </div>
+            </div>
+        </div>
+<!--    </div> (extra? seems to affect marginalia display) -->
+
+    <aside class="margin-container">
+    <a name="annotations"></a>
+        <ul class="annotation-list">
+        {% if page.annotation_count != 0 %}
+        {% for annotation in site.annotations %}
+            {% if annotation.annotated_page == page.tei_id %}
+                <li class="marginalia-item" data-annotation-id="{{ annotation.annotation_id }}">
+                    <a name="{{ annotation.annotation_id }}" title="view highlight"
+                        href="#hl-{{ annotation.annotation_id }}" class="to-hl"><span class="glyphicon glyphicon-chevron-up"></span></a>
+
+                    <a class="to-fullpage" href="{{ site.baseurl }}{{ annotation.url }}" title="full page annotation view"><i class="fa fa-expand"></i></a>
+
+                {% include annotation.html %}
+                </li>
+            {% endif %}
+        {% endfor %}
+        {% else %}
+          <li class="empty-item"/>
+        {% endif %}
+
+        </ul>
+    </aside>
+
+{% comment %} Find next/previous pages for navigation.
+Use page.next and page.previous if available (jekyll 3.x),
+otherwise find pages based on index to support Jekyll 2.4 on GitHub Pages.
+{% endcomment %}
+
+    {% comment %} Generate zero-based index from 1-based page sort order {% endcomment %}
+    {% assign index = page.sort_order|minus:1 %}
+
+    {% if page.previous %}
+      {% assign prev_page = page.previous %}
+    {% elsif index > 0 %}
+      {% assign prev_index = index|minus:1 %}
+      {% assign prev_page = site.volume_pages[prev_index] %}
+    {% endif %}
+    {% if page.next %}
+      {% assign next_page = page.next %}
+    {% elsif index < site.volume_pages.last.sort_order|minus:1 %}
+        {% assign next_index = index|plus:1 %}
+        {% assign next_page = site.volume_pages[next_index] %}
+    {% endif %}
+
+    {% if prev_page %}
+    <a class="left carousel-control" href="{{ site.baseurl }}{{ prev_page.url }}" role="button" data-slide="prev" title="Prev: {{ prev_page.title }}" rel="prev">
+        <span class="glyphicon glyphicon-chevron-left"></span>
+    </a>
+    {% endif %}
+    {% if next_page %}
+    <a class="right carousel-control" href="{{ site.baseurl }}{{ next_page.url }}" role="button" data-slide="next" title="Next: {{ next_page.title }}" rel="next">
+        <span class="glyphicon glyphicon-chevron-right"></span>
+    </a>
+    {% endif %}
+</article>
+
+{% if page.deep_zoom %}
+<script type="text/javascript" charset="utf-8">
+   $(document).ready(function () {
+      // set up seadragon configuration (not loaded unless triggered by user)
+      set_seadragon_opts({
+          id: "zoom-page",
+          // prefixUrl: "",
+          tileSources: "{% if page.images.page contains '://' %}{% else %}{{ site.url }}{{ site.baseurl }}/{% endif %}{{ page.images.json }}",
+          toolbar: 'deepzoom-controls',
+          showNavigator: true,
+          navigatorPosition: 'TOP_LEFT',
+          zoomInButton: 'dz-zoom-in',
+          zoomOutButton: 'dz-zoom-out',
+          homeButton: 'dz-home',
+          fullPageButton: 'dz-fs'
+      });
+  });
+</script>
+{% endif %}
+
+
+<!-- todo: readux basic layout, page image, deep zoom, next/prev,
+    annotation in margin -->
